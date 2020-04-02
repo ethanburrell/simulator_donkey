@@ -25,7 +25,7 @@ public class DonkeyRecord
     public string cam_image_array;
     public float user_throttle;
     public float user_angle;
-    public string user_mode; 
+    public string user_mode;
     public int track_lap;
     public int track_loc;
 
@@ -60,7 +60,8 @@ public class Logger : MonoBehaviour {
 	public GameObject carObj;
 	public ICar car;
 	public CameraSensor camSensor;
-    public CameraSensor optionlB_CamSensor;
+    public CameraSensor optional_LeftCam;
+	public CameraSensor optional_RightCam;
 	public Lidar lidar;
 
 	//what's the current frame index
@@ -100,7 +101,7 @@ public class Logger : MonoBehaviour {
 		public string filename;
 		public byte[] bytes;
 	}
-		
+
 	List<ImageSaveJob> imagesToSave;
 
 	Thread thread;
@@ -158,9 +159,9 @@ public class Logger : MonoBehaviour {
 		thread = new Thread(SaverThread);
 		thread.Start();
 	}
-		
+
 	// Update is called once per frame
-	void Update () 
+	void Update ()
 	{
 		if(!bDoLog)
 			return;
@@ -180,8 +181,8 @@ public class Logger : MonoBehaviour {
 			{
 				string image_filename = GetUdacityStyleImageFilename();
 				float steering = car.GetSteering() / car.GetMaxSteering();
-				writer.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", image_filename, 
-                    "none", "none", steering.ToString(), 
+				writer.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", image_filename,
+                    "none", "none", steering.ToString(),
                     car.GetThrottle().ToString(), "0", "0", lapCounter));
 			}
             else if(DonkeyStyle || SharkStyle)
@@ -226,11 +227,16 @@ public class Logger : MonoBehaviour {
 				f.Close();
 			}
 		}
-
-        if (optionlB_CamSensor != null)
+		// steroscopic impl
+        if (optional_LeftCam != null || optional_RightCam != null)
         {
-            SaveCamSensor(camSensor, activity, "_a");
-            SaveCamSensor(optionlB_CamSensor, activity, "_b");
+            SaveCamSensor(camSensor, activity, "_straight");
+            if (optional_LeftCam != null) {
+				SaveCamSensor(optional_LeftCam, activity, "_left");
+			}
+			if (optional_RightCam != null) {
+				SaveCamSensor(optional_RightCam, activity, "_right");
+			}
         }
         else
         {
@@ -258,7 +264,7 @@ public class Logger : MonoBehaviour {
     {
         float steering = car.GetSteering() / 25.0f;
         float throttle = car.GetThrottle();
-        return GetLogPath() + string.Format("frame_{0,6:D6}_ttl_{1}_agl_{2}_mil_0.0.jpg", 
+        return GetLogPath() + string.Format("frame_{0,6:D6}_ttl_{1}_agl_{2}_mil_0.0.jpg",
             frameCounter, throttle, steering);
     }
 
@@ -266,7 +272,7 @@ public class Logger : MonoBehaviour {
     {
         int steering = (int)(car.GetSteering() / 25.0f * 32768.0f);
         int throttle = (int)(car.GetThrottle() * 32768.0f);
-        return GetLogPath() + string.Format("frame_{0,6:D6}_st_{1}_th_{2}.jpg", 
+        return GetLogPath() + string.Format("frame_{0,6:D6}_st_{1}_th_{2}.jpg",
             frameCounter, steering, throttle);
     }
 
@@ -278,6 +284,7 @@ public class Logger : MonoBehaviour {
     //Save the camera sensor to an image. Use the suffix to distinguish between cameras.
     void SaveCamSensor(CameraSensor cs, string prefix, string suffix)
     {
+		Debug.Log(suffix);
         if (cs != null)
         {
             Texture2D image = cs.GetImage();
@@ -330,7 +337,7 @@ public class Logger : MonoBehaviour {
 
 			lock(this)
 			{
-				count = imagesToSave.Count; 
+				count = imagesToSave.Count;
 			}
 
 			if(count > 0)

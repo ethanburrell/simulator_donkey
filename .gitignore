@@ -10,3 +10,5 @@ sdsim/Temp
 sdsim/.vs
 sdsim/Build
 dataset
+*.exe
+*.dll

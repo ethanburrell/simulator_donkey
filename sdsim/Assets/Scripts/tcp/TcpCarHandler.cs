@@ -20,6 +20,9 @@ namespace tk
 
         public PathManager pm;
         public CameraSensor camSensor;
+		// steroscopic impl
+		public CameraSensor camSensorLeft;
+		public CameraSensor camSensorRight;
         private tk.JsonTcpClient client;
         float connectTimer = 1.0f;
         float timer = 0.0f;
@@ -102,7 +105,13 @@ namespace tk
             json.AddField("throttle", car.GetThrottle());
             json.AddField("speed", car.GetVelocity().magnitude);
             json.AddField("image", System.Convert.ToBase64String(camSensor.GetImageBytes()));
-
+			// stereo impl
+			if (camSensorLeft != null) {
+				json.AddField("image_l", System.Convert.ToBase64String(camSensorLeft.GetImageBytes()));
+			}
+			if (camSensorRight != null) {
+				json.AddField("image_r", System.Convert.ToBase64String(camSensorRight.GetImageBytes()));
+			}
             json.AddField("hit", car.GetLastCollision());
             car.ClearLastCollision();
 
@@ -226,7 +235,7 @@ namespace tk
             yield return null;
         }
 
-        
+
         void OnNextTrack(JSONObject json)
         {
             // Cycle through next track
