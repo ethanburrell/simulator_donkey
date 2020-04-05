@@ -228,15 +228,11 @@ public class Logger : MonoBehaviour {
 			}
 		}
 		// steroscopic impl
-        if (optional_LeftCam != null || optional_RightCam != null)
+        if (optional_LeftCam != null && optional_RightCam != null)
         {
-            SaveCamSensor(camSensor, activity, "_straight");
-            if (optional_LeftCam != null) {
-				SaveCamSensor(optional_LeftCam, activity, "_left");
-			}
-			if (optional_RightCam != null) {
-				SaveCamSensor(optional_RightCam, activity, "_right");
-			}
+            //SaveCamSensor(camSensor, activity, "_straight");
+			SaveCamSensor(optional_LeftCam, activity, "_left");
+			SaveCamSensor(optional_RightCam, activity, "_right");
         }
         else
         {
