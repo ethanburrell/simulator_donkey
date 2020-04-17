@@ -97,6 +97,9 @@ public class Logger : MonoBehaviour {
 	string outputFilename = "log_car_controls.txt";
 	private StreamWriter writer;
 
+	// Used to find the cross track error
+	pm = GameObject.FindObjectOfType<PathManager>();
+
 	class ImageSaveJob {
 		public string filename;
 		public byte[] bytes;
@@ -231,8 +234,21 @@ public class Logger : MonoBehaviour {
         if (optional_LeftCam != null && optional_RightCam != null)
         {
             //SaveCamSensor(camSensor, activity, "_straight");
-			SaveCamSensor(optional_LeftCam, activity, "_left");
-			SaveCamSensor(optional_RightCam, activity, "_right");
+			if(pm != null)
+            {
+                float cte = 0.0f;
+                if(pm.path.GetCrossTrackErr(tm.position, ref cte))
+                {
+					SaveCamSensor(optional_LeftCam, activity, "_left" + cte.ToString());
+					SaveCamSensor(optional_RightCam, activity, "_right" + cte.ToString());
+                }
+                else
+                {
+                    pm.path.ResetActiveSpan();
+					SaveCamSensor(optional_LeftCam, activity, "_left");
+					SaveCamSensor(optional_RightCam, activity, "_right");
+                }
+            }
         }
         else
         {
