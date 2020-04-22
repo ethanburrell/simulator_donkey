@@ -63,6 +63,8 @@ public class Logger : MonoBehaviour {
     public CameraSensor optional_LeftCam;
 	public CameraSensor optional_RightCam;
 	public Lidar lidar;
+	public PathManager pm;
+
 
 	//what's the current frame index
     public int frameCounter = 0;
@@ -98,7 +100,7 @@ public class Logger : MonoBehaviour {
 	private StreamWriter writer;
 
 	// Used to find the cross track error
-	pm = GameObject.FindObjectOfType<PathManager>();
+
 
 	class ImageSaveJob {
 		public string filename;
@@ -120,6 +122,7 @@ public class Logger : MonoBehaviour {
 	void Awake()
 	{
 		car = carObj.GetComponent<ICar>();
+		pm = GameObject.FindObjectOfType<PathManager>();
 
 		if(bDoLog && car != null)
 		{
@@ -234,6 +237,7 @@ public class Logger : MonoBehaviour {
         if (optional_LeftCam != null && optional_RightCam != null)
         {
             //SaveCamSensor(camSensor, activity, "_straight");
+			Transform tm = car.GetTransform();
 			if(pm != null)
             {
                 float cte = 0.0f;
